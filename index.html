@@ -1,22 +1,354 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
   <title>MMI Life Savers Check-In</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --blue:#0b4ea2;
+      --deep:#071b3a;
+      --red:#d71920;
+      --white:#ffffff;
+      --soft:#eef6ff;
+    }
+    * { box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+    body {
+      margin:0;
+      min-height:100vh;
+      font-family:Inter, system-ui, sans-serif;
+      color:#102033;
+      overflow:hidden;
+      background:
+        radial-gradient(circle at 20% 15%, rgba(215,25,32,.16), transparent 28%),
+        radial-gradient(circle at 90% 10%, rgba(11,78,162,.20), transparent 30%),
+        linear-gradient(135deg, #ffffff 0%, #eef6ff 42%, #ffffff 100%);
+    }
+    .bg {
+      position:fixed; inset:0; pointer-events:none;
+      background:
+        linear-gradient(120deg, rgba(11,78,162,.10), transparent 45%),
+        repeating-linear-gradient(135deg, rgba(11,78,162,.035) 0 1px, transparent 1px 18px);
+    }
+    .wrap {
+      position:relative;
+      min-height:100vh;
+      padding:26px 18px 20px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .card {
+      width:min(430px, 100%);
+      min-height:590px;
+      border-radius:34px;
+      padding:30px 22px;
+      background:rgba(255,255,255,.72);
+      border:1px solid rgba(255,255,255,.95);
+      box-shadow:0 28px 80px rgba(7,27,58,.22);
+      backdrop-filter:blur(18px);
+      position:relative;
+      overflow:hidden;
+    }
+    .card::before {
+      content:"";
+      position:absolute; inset:0 0 auto 0; height:7px;
+      background:linear-gradient(90deg, var(--blue), var(--red), var(--blue));
+    }
+    .badge {
+      width:74px; height:74px; border-radius:24px;
+      margin:0 auto 20px;
+      display:grid; place-items:center;
+      background:linear-gradient(135deg, var(--blue), #174f92);
+      color:white;
+      font-size:34px;
+      box-shadow:0 18px 40px rgba(11,78,162,.30);
+    }
+    h1 {
+      min-height:92px;
+      margin:0;
+      text-align:center;
+      font-family:"Playfair Display", serif;
+      font-size:clamp(35px, 9vw, 48px);
+      line-height:1.02;
+      color:var(--deep);
+      letter-spacing:-.8px;
+      text-shadow:0 0 20px rgba(11,78,162,.12);
+    }
+    .cursor {
+      display:inline-block;
+      width:3px;
+      height:.9em;
+      background:var(--red);
+      margin-left:3px;
+      vertical-align:-4px;
+      animation:blink .8s infinite;
+    }
+    @keyframes blink { 50% { opacity:0; } }
+    .sub {
+      margin:18px 0 28px;
+      text-align:center;
+      color:#334155;
+      font-size:17px;
+      font-weight:700;
+    }
+    .inputBox {
+      background:white;
+      border:1.5px solid rgba(11,78,162,.18);
+      border-radius:24px;
+      padding:16px;
+      box-shadow:0 14px 35px rgba(11,78,162,.10);
+    }
+    input {
+      width:100%;
+      border:0;
+      outline:0;
+      text-align:center;
+      font-size:28px;
+      font-weight:900;
+      letter-spacing:2px;
+      color:var(--deep);
+      background:transparent;
+      padding:8px 4px 14px;
+    }
+    input::placeholder {
+      color:#9aa8bd;
+      font-weight:800;
+      letter-spacing:.5px;
+    }
+    button {
+      width:100%;
+      border:0;
+      margin-top:18px;
+      padding:18px 20px;
+      border-radius:20px;
+      color:white;
+      font-size:16px;
+      font-weight:900;
+      letter-spacing:1.4px;
+      background:linear-gradient(135deg, var(--blue), #123d78 58%, var(--red));
+      box-shadow:0 18px 40px rgba(11,78,162,.30);
+      cursor:pointer;
+    }
+    .hint {
+      margin-top:24px;
+      text-align:center;
+      color:#64748b;
+      font-size:13px;
+      line-height:1.5;
+    }
+    .footer {
+      position:absolute;
+      bottom:13px;
+      left:0;
+      right:0;
+      text-align:center;
+      font-size:8px;
+      opacity:.16;
+      color:#0b4ea2;
+      letter-spacing:1px;
+      text-shadow:0 0 10px #0b4ea2;
+    }
+    .overlay {
+      position:fixed;
+      inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+      background:rgba(4,15,35,.70);
+      backdrop-filter:blur(12px);
+      z-index:20;
+    }
+    .overlay.show { display:flex; }
+    .modal {
+      width:min(430px, 100%);
+      border-radius:34px;
+      padding:34px 24px;
+      text-align:center;
+      color:white;
+      transform:scale(.94);
+      animation:pop .25s ease forwards;
+      border:1px solid rgba(255,255,255,.22);
+      box-shadow:0 32px 90px rgba(0,0,0,.38);
+    }
+    @keyframes pop { to { transform:scale(1); } }
+    .welcome { background:linear-gradient(135deg, #0b4ea2, #0c2e63 66%, #ffffff22); }
+    .repeat { background:linear-gradient(135deg, #0b4ea2, #0c2e63 55%, #d71920); }
+    .invalid { background:linear-gradient(135deg, #d71920, #7b0d12); }
+    .modal .big {
+      font-size:42px;
+      font-weight:1000;
+      letter-spacing:1px;
+      margin-bottom:12px;
+    }
+    .modal .name {
+      font-family:"Playfair Display", serif;
+      font-size:35px;
+      line-height:1.1;
+      font-weight:800;
+    }
+    .modal .tap {
+      margin-top:24px;
+      font-size:13px;
+      opacity:.86;
+      font-weight:700;
+    }
+  </style>
 </head>
+<body>
+  <div class="bg"></div>
 
-<body style="background:#0b1f3a;color:white;font-family:Arial;text-align:center;padding-top:100px;">
+  <main class="wrap">
+    <section class="card">
+      <div class="badge">✚</div>
+      <h1><span id="typed"></span><span class="cursor"></span></h1>
+      <p class="sub">Please enter your Employee ID</p>
 
-<h1>Welcoming Our Life Savers</h1>
+      <form id="checkinForm" class="inputBox">
+        <input id="employeeId" inputmode="numeric" autocomplete="off" placeholder="Employee ID" />
+        <button type="submit">CHECK IN</button>
+      </form>
 
-<p>Please enter your Employee ID</p>
+      <p class="hint">Scan. Enter ID. Show the message to security.</p>
+      <div class="footer">ChitraGPT</div>
+    </section>
+  </main>
 
-<input type="text" placeholder="Employee ID" style="padding:10px;border-radius:10px;border:none;">
+  <div id="overlay" class="overlay">
+    <div id="modal" class="modal welcome">
+      <div id="modalBig" class="big">WELCOME</div>
+      <div id="modalName" class="name"></div>
+      <div class="tap">Tap anywhere to continue</div>
+    </div>
+  </div>
 
-<br><br>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+    import {
+      getFirestore, doc, getDoc, setDoc, updateDoc, addDoc,
+      collection, serverTimestamp, increment
+    } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 
-<button style="padding:10px 20px;border:none;border-radius:10px;background:red;color:white;">
-CHECK IN
-</button>
+    const firebaseConfig = {
+      "apiKey": "AIzaSyC7UruxxTWwBtY_gQzw5bZajSA5dh8Eh7U",
+      "authDomain": "mmi-life-savers-checkin.firebaseapp.com",
+      "projectId": "mmi-life-savers-checkin",
+      "storageBucket": "mmi-life-savers-checkin.firebasestorage.app",
+      "messagingSenderId": "250748184071",
+      "appId": "1:250748184071:web:d9b927ca631c4591626ca2"
+};
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
+    const NURSES = [{"id": "300130", "name": "Hirabati Biswas"}, {"id": "301508", "name": "Usha Binita Bara"}, {"id": "305321", "name": "Vishakha Wasnik"}, {"id": "305324", "name": "Nibedita Chhatria"}, {"id": "305326", "name": "Sarita Roy"}, {"id": "305327", "name": "Archana Joshi"}, {"id": "305328", "name": "Sindhu Gendre Bondre"}, {"id": "305329", "name": "Dharmika Roy"}, {"id": "305332", "name": "Manjula Senapati"}, {"id": "305333", "name": "Lalita Rewatkar"}, {"id": "305341", "name": "Shobha Lal"}, {"id": "305392", "name": "Vasundhara Titus"}, {"id": "305447", "name": "Vijaya Chafekar"}, {"id": "305448", "name": "Nalu Tandi"}, {"id": "305451", "name": "Vandana John"}, {"id": "305452", "name": "Joen Chouhan"}, {"id": "305473", "name": "Savita John"}, {"id": "305474", "name": "Sanjukta Nayak"}, {"id": "305475", "name": "Ethel Dungdung"}, {"id": "305524", "name": "Philomina Chandy"}, {"id": "305534", "name": "Mariamma Masih"}, {"id": "309281", "name": "Aneesh P V"}, {"id": "309806", "name": "Jyoti Rangari"}, {"id": "311690", "name": "Leena Yadav"}, {"id": "311691", "name": "Rakeshwari Yadav"}, {"id": "311750", "name": "Prabha Chaturvedi"}, {"id": "311869", "name": "Sati Sahu"}, {"id": "312519", "name": "Gajbhiye Astshila"}, {"id": "312592", "name": "Pushpabai Shamkuwar"}, {"id": "314381", "name": "Sarojini Kanpan"}, {"id": "314636", "name": "Kavita ."}, {"id": "317585", "name": "Manju Surjal"}, {"id": "317587", "name": "Badrika Chauhan"}, {"id": "317588", "name": "Rose Mary Lakra"}, {"id": "318158", "name": "Sunita Minj"}, {"id": "319500", "name": "Godawary ."}, {"id": "320831", "name": "Sangita Routroy"}, {"id": "321170", "name": "Anisha Manesh"}, {"id": "324362", "name": "Savitri ."}, {"id": "327128", "name": "Priyanka Rai"}, {"id": "327129", "name": "Amit Kumar Rajak"}, {"id": "327160", "name": "Manjula Barik"}, {"id": "329086", "name": "Dhaneshawari ."}, {"id": "331965", "name": "Nidhi Rai"}, {"id": "332264", "name": "Neera Sahu"}, {"id": "333902", "name": "Lata Manikpuri"}, {"id": "334027", "name": "Pramila Sahu"}, {"id": "335234", "name": "Shalini Masih"}, {"id": "337409", "name": "Shrishti Gardia"}, {"id": "339793", "name": "Laxmi Dhankar"}, {"id": "339805", "name": "Sandeep Kumar Dewangan"}, {"id": "340392", "name": "Giteshwari Sahu"}, {"id": "340395", "name": "Hemlata Giri"}, {"id": "340414", "name": "Koushilya Gargwanshi"}, {"id": "340422", "name": "Amrita Yadav"}, {"id": "340470", "name": "Rinku Sardar"}, {"id": "341212", "name": "Manisha Sagar"}, {"id": "341300", "name": "Yashoda Bai"}, {"id": "343641", "name": "Manjusha Lakra"}, {"id": "343877", "name": "Lukeshwari ."}, {"id": "343997", "name": "Shradha Priyanka Tirkey"}, {"id": "345133", "name": "Ranjita Kumbhara"}, {"id": "345696", "name": "Durgesh Kumar Sahu"}, {"id": "345800", "name": "Savita Bai"}, {"id": "346347", "name": "Tarini Sahu"}, {"id": "346453", "name": "Arpan Amit Das"}, {"id": "346872", "name": "Santoshi ."}, {"id": "347470", "name": "Dinesh Kumar Sinha"}, {"id": "347600", "name": "Nidhi Verma"}, {"id": "347663", "name": "Soniya Gardia"}, {"id": "348160", "name": "Vaishali ."}, {"id": "348272", "name": "Shashikant Yadav"}, {"id": "348277", "name": "Dameshwari ."}, {"id": "348465", "name": "Kiran Das"}, {"id": "349061", "name": "Kumari Pushpa Sahu"}, {"id": "349380", "name": "Thakur Das"}, {"id": "349529", "name": "Smita Sahu"}, {"id": "349668", "name": "Divya Sahu"}, {"id": "349934", "name": "Manisha Keshri"}, {"id": "350039", "name": "Manju Sinha"}, {"id": "350229", "name": "Santoshi ."}, {"id": "350230", "name": "Arunrita Lakra"}, {"id": "350800", "name": "Susmita Bhuiya"}, {"id": "350811", "name": "Sangeeta Verma"}, {"id": "351074", "name": "Soni ."}, {"id": "351081", "name": "Upasana Yadav"}, {"id": "351236", "name": "Rupesh Pradhan"}, {"id": "351238", "name": "Bhavana Singh"}, {"id": "351578", "name": "Roshni Sarthi"}, {"id": "351846", "name": "Sarvesh Kumar Singh"}, {"id": "352329", "name": "Veena ."}, {"id": "352332", "name": "Nirjharni Barik"}, {"id": "352399", "name": "Ankita Kerketta"}, {"id": "352851", "name": "Rishma Kumar"}, {"id": "353129", "name": "Fuleshwari Banjara"}, {"id": "353189", "name": "Pinki Yadav"}, {"id": "353190", "name": "Dhaneshwari Sahu"}, {"id": "353192", "name": "Henarani Digal"}, {"id": "353195", "name": "Mahendra Kumar Patel"}, {"id": "353415", "name": "Subhash Kumar"}, {"id": "353416", "name": "Neetu Gendre"}, {"id": "353464", "name": "Abhishek Netam"}, {"id": "353651", "name": "Jhamin Sahu"}, {"id": "353716", "name": "Poonam Yadav"}, {"id": "353779", "name": "Hemlata Sahu"}, {"id": "354393", "name": "Nandini Sahu"}, {"id": "354970", "name": "Sulata Sarkar"}, {"id": "354971", "name": "Khileshwari Diwan"}, {"id": "354975", "name": "Prerna Sonwani"}, {"id": "354976", "name": "Priti Sonwani"}, {"id": "355145", "name": "Keshw Ram Chelak"}, {"id": "355262", "name": "Gunita Sidar"}, {"id": "355273", "name": "Bharti Patel"}, {"id": "355274", "name": "Sanjay Kumar"}, {"id": "355614", "name": "Sonam Verma"}, {"id": "356383", "name": "Kamleshwari Sahu"}, {"id": "357867", "name": "Rexona Divakar Kalet"}, {"id": "358119", "name": "Manorama Dahriya"}, {"id": "358121", "name": "Suman Sinha"}, {"id": "358487", "name": "Om Kumari Sahu"}, {"id": "358676", "name": "Mamta Gupta"}, {"id": "358795", "name": "Avinash Kumar"}, {"id": "358804", "name": "Kavita Kurre"}, {"id": "358806", "name": "Mithila Verma"}, {"id": "358807", "name": "Khushnuma Bee"}, {"id": "358811", "name": "Jitendra Kumar Sahu"}, {"id": "358812", "name": "Moteelal Sahu"}, {"id": "358905", "name": "Renuka Kosriya"}, {"id": "358931", "name": "Kiran ."}, {"id": "359118", "name": "Shweta ."}, {"id": "359397", "name": "Omin Yadav"}, {"id": "359427", "name": "Abha Vaishnav"}, {"id": "359484", "name": "Anita Sahu"}, {"id": "359750", "name": "Shinto Antony"}, {"id": "359918", "name": "Rajeshwari ."}, {"id": "360388", "name": "Gyneshwari Chandrakar"}, {"id": "360644", "name": "Suruchi Sahu"}, {"id": "361125", "name": "Ritu Sahu"}, {"id": "361245", "name": "Bharti Sahu"}, {"id": "361790", "name": "Geetika Sahu"}, {"id": "361792", "name": "Ruma ."}, {"id": "361854", "name": "Khileshwari ."}, {"id": "361884", "name": "Tikeshwari Sahu"}, {"id": "361917", "name": "Nitu Sen"}, {"id": "361919", "name": "Santoshi Yadav"}, {"id": "362024", "name": "Neelima Sahu"}, {"id": "362025", "name": "Kiran Sahu"}, {"id": "362130", "name": "Manisha Gilhare"}, {"id": "362200", "name": "Vijendra Kumar Sahu"}, {"id": "362495", "name": "Radha Uranv"}, {"id": "362716", "name": "Jharna Yadav"}, {"id": "362717", "name": "Ritu ."}, {"id": "362750", "name": "Annu David"}, {"id": "363303", "name": "Niharika Singh"}, {"id": "363382", "name": "Punita Xalxo"}, {"id": "363775", "name": "Anjali Chakradhari"}, {"id": "364069", "name": "Usha Sahu"}, {"id": "364274", "name": "Yamuna Naurange"}, {"id": "364374", "name": "Asmita Nonia"}, {"id": "364572", "name": "Jyoti ."}, {"id": "364662", "name": "Yashoda ."}, {"id": "364740", "name": "Akansha Das"}, {"id": "364798", "name": "Saraswati ."}, {"id": "365251", "name": "Keshari Sahu"}, {"id": "365310", "name": "Balmakund Tandi"}, {"id": "365316", "name": "Jissa Susan Abraham"}, {"id": "365492", "name": "Priyanka Sahu"}, {"id": "365988", "name": "Divya ."}, {"id": "365989", "name": "Monika Yadav"}, {"id": "366270", "name": "Sapna Nishad"}, {"id": "366335", "name": "Kumari Tikeshwari"}, {"id": "366411", "name": "Meena Kumhar"}, {"id": "366413", "name": "Sonika Yadav"}, {"id": "366464", "name": "Sumitra Kushwaha"}, {"id": "366649", "name": "Kunj Mati Sahu"}, {"id": "367077", "name": "Shama Bano"}, {"id": "367894", "name": "Shalini Jaiswal"}, {"id": "367895", "name": "Sharda Sahu"}, {"id": "367943", "name": "Sonali ."}, {"id": "367944", "name": "Yamini Jaisawal"}, {"id": "368194", "name": "Nandani Diwan"}, {"id": "368195", "name": "Madhubala Masih"}, {"id": "368197", "name": "Deepali ."}, {"id": "369857", "name": "Janki Sahu"}, {"id": "369859", "name": "Pooja ."}, {"id": "369909", "name": "Anjali Chandrakar"}, {"id": "370164", "name": "Chanchal Nirmalkar"}, {"id": "370166", "name": "Hemlata Sahu"}, {"id": "370306", "name": "Kalpana Pal ."}, {"id": "370797", "name": "Minakshi ."}, {"id": "370980", "name": "Gyaneshwari Bais"}, {"id": "371061", "name": "Chandrakiran ."}, {"id": "371091", "name": "Anjali Narang"}, {"id": "371353", "name": "Mithleshwari ."}, {"id": "371885", "name": "Lokesh Sao"}, {"id": "371941", "name": "Shanu Priya"}, {"id": "371957", "name": "Kreeti Gayakwad"}, {"id": "372105", "name": "Sayan Biswas"}, {"id": "372321", "name": "Tuleshwari ."}, {"id": "372435", "name": "Yamini Dewangan"}, {"id": "372437", "name": "Vijay Patel"}, {"id": "372441", "name": "Abhilasha Das"}, {"id": "372443", "name": "Dhansingh Bandhle"}, {"id": "372532", "name": "Priya Chauhan"}, {"id": "372859", "name": "Deepali Yadav"}, {"id": "372860", "name": "Pooja Mishra"}, {"id": "373004", "name": "Srishti Baghel"}, {"id": "373005", "name": "Mamata Mahanand"}, {"id": "373341", "name": "Parwej Hussain"}, {"id": "373342", "name": "Santu Paira"}, {"id": "373343", "name": "Biswajit Raj"}, {"id": "373410", "name": "Parmila ."}, {"id": "373412", "name": "Khomin Deshlahare"}, {"id": "373413", "name": "Arjumand Banu"}, {"id": "373414", "name": "Neha Lal"}, {"id": "373415", "name": "Kumari Sahu"}, {"id": "373418", "name": "Rahul Banjara"}, {"id": "373508", "name": "Rashmi Gaikwad"}, {"id": "373861", "name": "Partha Das"}, {"id": "373865", "name": "Ayushi ."}, {"id": "373866", "name": "Subhankar Dey"}, {"id": "373876", "name": "Hemlata Bharti"}, {"id": "373910", "name": "Bhemlata Sahu"}, {"id": "373915", "name": "Purnima Sahu"}, {"id": "373990", "name": "Manju Sahu"}, {"id": "374308", "name": "Bijantin Markam"}, {"id": "374310", "name": "Sati Dewangan"}, {"id": "374312", "name": "Chandana Mahata"}, {"id": "374356", "name": "Rekha Singh"}, {"id": "374474", "name": "Namita Yadav"}, {"id": "374475", "name": "Manisha Deshmukh"}, {"id": "374690", "name": "Gayatri Rajwade"}, {"id": "374768", "name": "Vikash Kumar"}, {"id": "374777", "name": "Jannatul Firdaush"}, {"id": "374784", "name": "Saraswati Sori"}, {"id": "374786", "name": "Mahit Kujur"}, {"id": "375103", "name": "Pushplata Thakur"}, {"id": "375133", "name": "Jay Kumari Sahu"}, {"id": "375248", "name": "Anand Kindo"}, {"id": "375252", "name": "Hemwati Rajwade"}, {"id": "375277", "name": "Punya Nidhi Beck"}, {"id": "375278", "name": "Vijay Kumari Sahu"}, {"id": "375667", "name": "Rajesh Das"}, {"id": "375678", "name": "Pankaj Sen"}, {"id": "376029", "name": "Jiteshwari ."}, {"id": "376046", "name": "Alen Antony"}, {"id": "376071", "name": "Varsha Verma"}, {"id": "376077", "name": "Chandan Jana"}, {"id": "376152", "name": "Khileshwari Sahu"}, {"id": "376166", "name": "Arti Naurange"}, {"id": "376326", "name": "Girja ."}, {"id": "376344", "name": "Geetanjali Sonwani"}, {"id": "376443", "name": "Kiran Meshram"}, {"id": "376445", "name": "Panchbati Sahu"}, {"id": "376576", "name": "Aarti Kashyap"}, {"id": "376706", "name": "Kusumlata Nagpure"}, {"id": "377015", "name": "Mamta ."}, {"id": "377172", "name": "Jharna Bai Painkra"}, {"id": "377283", "name": "Deepak Kumar Sahu"}, {"id": "377413", "name": "Swarnlata Kujur"}, {"id": "377439", "name": "Vandana Kashyap"}, {"id": "377621", "name": "Rose Mary Masih"}, {"id": "377623", "name": "Monika Kodopi"}, {"id": "377755", "name": "Tarni ."}, {"id": "377811", "name": "Om Prakash Sahu"}, {"id": "377930", "name": "Namrata ."}, {"id": "377943", "name": "Laxmi Sahu"}, {"id": "377945", "name": "Kamlesh Katre"}, {"id": "377967", "name": "Bharti Nayak"}, {"id": "378023", "name": "Kriti Sahu"}, {"id": "378153", "name": "Jamuna ."}, {"id": "378154", "name": "Manish Patel"}, {"id": "378155", "name": "Payal Hazra"}, {"id": "378215", "name": "Anjali ."}, {"id": "378273", "name": "Homeshwari ."}, {"id": "378309", "name": "Yamini Sahu"}, {"id": "378384", "name": "Manoj Kumar Sahu"}, {"id": "378386", "name": "Supriya Lal"}, {"id": "378400", "name": "Aayush Saha"}, {"id": "378402", "name": "Sapna Yogesh Das"}, {"id": "378455", "name": "Chanchal ."}, {"id": "378604", "name": "Devendra Kumar Kashyap"}, {"id": "378623", "name": "Malti usendi Usendi"}, {"id": "378628", "name": "Bhuneshwari Uike"}, {"id": "378798", "name": "Nemeshwari Sahu"}, {"id": "378799", "name": "Manisha ."}, {"id": "378800", "name": "Padimani ."}, {"id": "378858", "name": "Kamlesh Sahu"}, {"id": "378861", "name": "Madhuri Sahu"}, {"id": "378862", "name": "kumudani Yadu"}, {"id": "378863", "name": "Rajni Sahu"}, {"id": "378864", "name": "Shraddha Chandrawanshi"}, {"id": "378938", "name": "Mukesh Kumar Shriwas"}, {"id": "379018", "name": "Jyoti ."}, {"id": "379158", "name": "Kajal Nag"}, {"id": "379159", "name": "Kajal Thakur"}, {"id": "379161", "name": "Roshni Yadav"}, {"id": "379249", "name": "Vijendra Kumar"}, {"id": "379254", "name": "Narayani Sahu"}, {"id": "379363", "name": "Kumari Kaushilya Sahu"}, {"id": "379364", "name": "Sunita Ratre"}, {"id": "379480", "name": "Roshni Sahu"}, {"id": "379481", "name": "Vinita Tirkey"}, {"id": "379499", "name": "Jyoti ."}, {"id": "379571", "name": "Savitri Sahu"}, {"id": "379650", "name": "Amritanshu James Sukul"}, {"id": "379666", "name": "Abhishek Ahirwar"}, {"id": "379722", "name": "Dharini Sahu"}, {"id": "379725", "name": "Divya .barsel"}, {"id": "379831", "name": "Parvati Patel"}, {"id": "379835", "name": "Priyanka Kunjam"}, {"id": "379986", "name": "Dipika Behra"}, {"id": "379987", "name": "Amit Kumar"}, {"id": "380115", "name": "Najma Khatun"}, {"id": "380116", "name": "Rajani Jangde"}, {"id": "380253", "name": "Suresh Das Manikpuri"}, {"id": "380254", "name": "Ambika Chakrawarti"}, {"id": "380315", "name": "Sharda Karsh"}, {"id": "380330", "name": "Barsha Halder"}, {"id": "380408", "name": "Alkarani Verma"}, {"id": "380410", "name": "De Pushpa ."}, {"id": "380476", "name": "Mithleshwari ."}, {"id": "380479", "name": "Neelkanth Nirmalkar"}, {"id": "380481", "name": "Preeti Bareth"}, {"id": "380553", "name": "Namrata ."}, {"id": "380557", "name": "Neha Verma"}, {"id": "380567", "name": "Laxman Putel"}, {"id": "380642", "name": "Anjali Kharkhate"}, {"id": "380643", "name": "Kavita Dhrama"}, {"id": "380644", "name": "Amit Kumar Kahar"}, {"id": "380751", "name": "Teekam Banjara"}, {"id": "380809", "name": "Anjli Toppo"}, {"id": "380865", "name": "Ujala Minj"}, {"id": "380867", "name": "Yaman Kumar"}, {"id": "380868", "name": "Hemlata Chakradhari"}, {"id": "380870", "name": "Shailendra Dewangan"}, {"id": "380886", "name": "Dinesh Kumar Kahar"}, {"id": "380887", "name": "Asha kumari Tandan"}, {"id": "380966", "name": "Kheerbati kashyap"}, {"id": "381116", "name": "Manisha Sao"}, {"id": "381118", "name": "Sanjay Kumar Sahu"}, {"id": "381132", "name": "Seema Maurya"}, {"id": "381204", "name": "Daleshwar Sahu"}, {"id": "381229", "name": "Maheshwaree ."}, {"id": "381258", "name": "Manisha Soni"}, {"id": "381259", "name": "Indu Kunjam"}, {"id": "381260", "name": "Premlata ."}, {"id": "381261", "name": "Ajay Kumar Verma"}, {"id": "381262", "name": "Sudip Pratihar"}, {"id": "381267", "name": "Reshmi Sonkar"}, {"id": "381274", "name": "Sonamati Kujur"}, {"id": "381345", "name": "Shashilata Khalkho"}, {"id": "381365", "name": "Baleshwar ram ."}, {"id": "381367", "name": "Poonam Kumari"}, {"id": "381368", "name": "Hiteshwari Netam"}, {"id": "381385", "name": "Chandrakanta ."}, {"id": "381409", "name": "Gaytri Verma"}, {"id": "381449", "name": "Mamta Choudhary"}, {"id": "381450", "name": "Ashok Kumar Ahirwar"}, {"id": "381451", "name": "Khilesh Kumar"}, {"id": "381452", "name": "Madhu Patel"}, {"id": "381703", "name": "Jharna Devi"}, {"id": "381747", "name": "Akash Chakraborty"}, {"id": "381748", "name": "Anamika Sasmal"}, {"id": "381749", "name": "Kanchan Kumari Sahu"}, {"id": "381751", "name": "Rameshwari Yadu"}, {"id": "381754", "name": "Jashina Toppo"}, {"id": "381755", "name": "Lalita Netam"}, {"id": "381756", "name": "Jyoti Satnami"}, {"id": "381757", "name": "Dhananjay Tribhuvan"}, {"id": "381776", "name": "Saumya Tiwari"}, {"id": "381795", "name": "Dhaneshwari patil"}, {"id": "381796", "name": "Neha ."}, {"id": "381797", "name": "Divya Sahu"}, {"id": "381799", "name": "Khileshwari Dadsena"}, {"id": "381808", "name": "Neha Jumdi"}, {"id": "381830", "name": "Prativa Das"}, {"id": "381946", "name": "Vepika Sen"}, {"id": "381947", "name": "Vishakha Mahanand"}, {"id": "382042", "name": "Chandani ."}, {"id": "382149", "name": "Ashika Chunarkar"}, {"id": "382161", "name": "Monika Sahu"}, {"id": "382162", "name": "Nikita Bunkar"}, {"id": "382163", "name": "Priyanka ."}, {"id": "382164", "name": "Nandini Baghel"}, {"id": "382180", "name": "Tileshwari Banjare"}, {"id": "382191", "name": "Sevanti Bai"}, {"id": "382192", "name": "Kavita Jaiswal"}, {"id": "382198", "name": "Pinkey ."}, {"id": "382199", "name": "Sharon Elizabeth Jaison"}, {"id": "382200", "name": "Morina Vikram"}, {"id": "382202", "name": "Aanchal Verma"}, {"id": "382203", "name": "Ragini Singh"}, {"id": "382600", "name": "Vinita Kashyap"}, {"id": "382614", "name": "Ambika Kashyap"}, {"id": "382615", "name": "Archana Ekka"}, {"id": "382656", "name": "Pooja Bhuarya"}, {"id": "382657", "name": "Riya . Ekka"}, {"id": "382730", "name": "Alpha Bara"}, {"id": "382731", "name": "Neha Tirkey"}, {"id": "382732", "name": "Sanjana Sahu"}, {"id": "382733", "name": "Bamleshwari naik"}, {"id": "382734", "name": "Roshni Kujur"}, {"id": "382872", "name": "Lokeshwari Komre"}, {"id": "382948", "name": "Toman Lal Thakur"}, {"id": "382986", "name": "Sunita Sahu"}, {"id": "383002", "name": "Keerti Tigga"}];
+
+    const nurseMap = new Map(NURSES.map(n => [String(n.id).trim(), n.name]));
+
+    const typedEl = document.getElementById("typed");
+    const titleText = "Welcoming Our Life Savers";
+    let i = 0;
+    function typeTitle() {
+      if (i <= titleText.length) {
+        typedEl.textContent = titleText.slice(0, i);
+        i++;
+        setTimeout(typeTitle, 72);
+      }
+    }
+    typeTitle();
+
+    const form = document.getElementById("checkinForm");
+    const input = document.getElementById("employeeId");
+    const overlay = document.getElementById("overlay");
+    const modal = document.getElementById("modal");
+    const modalBig = document.getElementById("modalBig");
+    const modalName = document.getElementById("modalName");
+
+    function showMessage(type, big, name = "") {
+      modal.className = "modal " + type;
+      modalBig.textContent = big;
+      modalName.textContent = name;
+      overlay.classList.add("show");
+    }
+
+    overlay.addEventListener("click", () => {
+      overlay.classList.remove("show");
+      input.value = "";
+      setTimeout(() => input.focus(), 150);
+    });
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const employeeId = input.value.trim();
+      if (!employeeId) return;
+
+      const nurseName = nurseMap.get(employeeId);
+
+      try {
+        if (!nurseName) {
+          await addDoc(collection(db, "attempts"), {
+            employeeId,
+            nurseName: "",
+            status: "INVALID ID",
+            attemptTime: serverTimestamp(),
+            source: "index.html"
+          });
+          showMessage("invalid", "INVALID ID!");
+          return;
+        }
+
+        const checkinRef = doc(db, "checkins", employeeId);
+        const existing = await getDoc(checkinRef);
+
+        if (existing.exists()) {
+          await updateDoc(checkinRef, {
+            lastAttemptAt: serverTimestamp(),
+            repeatCount: increment(1),
+            status: "SIGNED IN AGAIN"
+          });
+
+          await addDoc(collection(db, "attempts"), {
+            employeeId,
+            nurseName,
+            status: "SIGNED IN AGAIN",
+            attemptTime: serverTimestamp(),
+            source: "index.html"
+          });
+
+          showMessage("repeat", "ALREADY SIGNED IN!", nurseName);
+          return;
+        }
+
+        await setDoc(checkinRef, {
+          employeeId,
+          nurseName,
+          status: "SIGNED IN",
+          firstCheckInAt: serverTimestamp(),
+          lastAttemptAt: serverTimestamp(),
+          repeatCount: 0
+        });
+
+        await addDoc(collection(db, "attempts"), {
+          employeeId,
+          nurseName,
+          status: "SIGNED IN",
+          attemptTime: serverTimestamp(),
+          source: "index.html"
+        });
+
+        showMessage("welcome", "WELCOME", nurseName);
+
+      } catch (err) {
+        console.error(err);
+        showMessage("invalid", "CONNECTION ERROR", "Please try again");
+      }
+    });
+
+    window.addEventListener("load", () => input.focus());
+  </script>
 </body>
 </html>
